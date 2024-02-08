@@ -9,7 +9,7 @@ contourpy==1.1.0
 cryptography==2.8
 cycler==0.11.0
 dbus-python==1.2.16
-defer==1.0.6
+defer==1.0.0
 distro==1.4.0
 distro-info==0.23+ubuntu1.1
 duplicity==0.8.12.0
