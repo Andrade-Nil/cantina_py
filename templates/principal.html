@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página Principal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container container-fluid">
+      <a class="navbar-brand" href="#">Navbar</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Início</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/cadastrar">Cadastro</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/lista_alunos">Lista</a>
+          </li>
+        </ul>
+        <form class="d-flex">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  <div class="container mb-4">
+    
+    <h1 class="mt-4 mb-4">cantina</h1>
+    <nav>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        {% for ano, alunos in alunos_por_ano.items() %}
+          <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ ano }}" data-bs-toggle="tab" data-bs-target="#nav-{{ ano }}" type="button" role="tab" aria-controls="nav-{{ ano }}" aria-selected="true">{{ ano }}º Ano</button>
+        {% endfor %}
+      </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+      {% for ano, alunos in alunos_por_ano.items() %}
+        <div class="tab-pane fade{% if loop.first %} show active{% endif %}" id="nav-{{ ano }}" role="tabpanel" aria-labelledby="{{ ano }}">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Nome</th>
+                <th scope="col">2ª feira</th>
+                <th scope="col">3ª feira</th>
+                <th scope="col">4ª feira</th>
+                <th scope="col">5ª feira</th>
+                <th scope="col">6ª feira</th>
+                <th scope="col">Consumo Total da Semana</th>
+                <th scope="col">Crédito</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for aluno in alunos %}
+                <tr>
+                  <th scope="row">{{ aluno['id'] }}</th>
+                  <td>{{ aluno['nome'] }}</td>
+                  <td contenteditable="true" class="editar-consumo dinheiro" data-dia="segunda" data-aluno="{{ aluno['id'] }}">0,00</td>
+                  <td contenteditable="true" class="editar-consumo dinheiro" data-dia="terca" data-aluno="{{ aluno['id'] }}">0,00</td>
+                  <td contenteditable="true" class="editar-consumo dinheiro" data-dia="quarta" data-aluno="{{ aluno['id'] }}">0,00</td>
+                  <td contenteditable="true" class="editar-consumo dinheiro" data-dia="quinta" data-aluno="{{ aluno['id'] }}">0,00</td>
+                  <td contenteditable="true" class="editar-consumo dinheiro" data-dia="sexta" data-aluno="{{ aluno['id'] }}">0,00</td>
+                  <td class="consumo-total">0,00</td>
+                  <td class="credito-atual verificar">{{ aluno['credito'] }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <button class="btn btn-primary" id="subtrair-credito">Subtrair Crédito</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Adiciona um ouvinte de eventos de clique aos campos de edição
+        document.querySelectorAll('.editar-consumo').forEach(function (element) {
+            const alunoId = element.getAttribute('data-aluno');
+            const diaSemana = element.getAttribute('data-dia');
+
+            // Carrega os valores do armazenamento local ao iniciar
+            const valorSalvo = localStorage.getItem(`consumo_${alunoId}_${diaSemana}`);
+            if (valorSalvo) {
+                element.innerText = valorSalvo;
+            }
+
+            element.addEventListener('input', function () {
+                // Calcula o consumo total ao editar
+                calcularConsumoTotal(this.closest('tr'));
+                // Salva o valor no armazenamento local
+                const alunoId = this.getAttribute('data-aluno');
+                const diaSemana = this.getAttribute('data-dia');
+                localStorage.setItem(`consumo_${alunoId}_${diaSemana}`, this.innerText);
+            });
+        });
+
+        // Carrega os valores do consumo total do armazenamento local ao iniciar a página
+        document.querySelectorAll('.consumo-total').forEach(function (element) {
+            const alunoId = element.closest('tr').querySelector('.editar-consumo').getAttribute('data-aluno');
+            const valorTotalSalvo = localStorage.getItem(`consumoTotal_${alunoId}`);
+            if (valorTotalSalvo) {
+                element.innerText = valorTotalSalvo;
+            }
+        });
+
+        // Adiciona um ouvinte de eventos de clique ao botão de subtrair crédito
+        document.getElementById('subtrair-credito').addEventListener('click', function () {
+            // Exibe um diálogo de confirmação
+            var confirmacao = window.confirm('Tem certeza que deseja subtrair o crédito?');
+
+            // Verifica se o usuário confirmou
+            if (confirmacao) {
+                // Restante do código para subtrair crédito
+                const data = {};
+                document.querySelectorAll('.consumo-total').forEach(function (element) {
+                    const alunoId = element.closest('tr').querySelector('.editar-consumo').getAttribute('data-aluno');
+                    const consumoTotal = parseFloat(element.innerText.replace(',', '.'));
+
+                    // Adiciona os dados ao objeto
+                    data[alunoId] = consumoTotal;
+
+                    // Zera os valores diários
+                    element.closest('tr').querySelectorAll('.editar-consumo').forEach(function (consumoElement) {
+                        consumoElement.innerText = '0,00';
+                    });
+
+                    // Zera o valor do consumo total
+                    element.innerText = '0,00';
+
+                    // Limpa os valores no armazenamento local
+                    const diasDaSemana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta'];
+                    diasDaSemana.forEach(function (dia) {
+                        localStorage.removeItem(`consumo_${alunoId}_${dia}`);
+                    });
+                    localStorage.removeItem(`consumoTotal_${alunoId}`);
+                });
+
+                // Envia os dados para a rota /subtrair_credito
+                $.ajax({
+                    type: 'POST',
+                    url: '/subtrair_credito',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        console.log(response);
+                        // Aqui você pode adicionar alguma lógica de manipulação da resposta, se necessário
+                        location.reload(true);
+                    },
+                    error: function (error) {
+                        console.error(error);
+                        // Trate erros, se necessário
+                    }
+                });
+            } else {
+                // Ação cancelada pelo usuário
+                alert('Ação cancelada pelo usuário.');
+            }
+        });
+
+        // Restante do código para carregar valores do armazenamento local e outros eventos
+    });
+
+    // Função para calcular o consumo total
+    function calcularConsumoTotal(row) {
+        let total = 0;
+        row.querySelectorAll('.editar-consumo').forEach(function (element) {
+            total += parseFloat(element.innerText.replace(',', '.'));
+        });
+
+        // Atualiza o valor na célula de consumo total
+        const consumoTotalCell = row.querySelector('.consumo-total');
+        consumoTotalCell.innerText = formatarValor(total);
+
+        // Atualiza o valor no armazenamento local
+        const alunoId = consumoTotalCell.closest('tr').querySelector('.editar-consumo').getAttribute('data-aluno');
+        localStorage.setItem(`consumoTotal_${alunoId}`, formatarValor(total));
+    }
+
+    // Função para formatar o valor para exibição
+    function formatarValor(valor) {
+        return valor.toFixed(2).replace('.', ',');
+    }
+  </script>
+
+  <script>
+    $(document).ready(function () {
+      // Inicialize a máscara para campos de dinheiro
+      $('.dinheiro').mask('000.000.000,00', { reverse: true });
+    });
+  </script>
+  <script>
+    $(document).ready(function () {
+      // Adiciona a classe text-danger a elementos com a classe verificar se o valor for negativo
+      $('.verificar').each(function () {
+        var valor = parseFloat($(this).text().replace(',', '.'));
+
+        if (!isNaN(valor) && valor < 0) {
+          $(this).addClass('text-danger');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container container-fluid">
+      <a class="navbar-brand" href="#">Navbar</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/principal">Início</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/cadastrar">Cadastrar</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/lista_alunos">Lista</a>
+          </li>
+        </ul>
+        <form class="d-flex">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  <div class="container mb-4">
+    <h1 class="mt-4 mb-4">Lista de Alunos</h1>
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Nome</th>
+          <th scope="col">Ano</th>
+          <th scope="col">Crédito</th>
+          <th class="d-flex justify-content-center" scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for aluno in alunos %}
+          <tr>
+            <th scope="row">{{ aluno['id'] }}</th>
+            <td class="aluno-nome">{{ aluno['nome'] }}</td>
+            <td>{{ aluno['ano'] }}</td>
+            <td class="verificar">{{ aluno['credito'] }}</td>
+            <td class="d-flex justify-content-center">
+              <button type="button" class="btn btn-primary btn-ver-detalhes" data-bs-toggle="modal" data-bs-target="#modalDetalhes-{{ aluno['id'] }}">
+                Detalhes
+              </button>
+              <!-- Botão de Pagamento -->
+              <button type="button" class="btn btn-success btn-pagamento ms-1" data-bs-toggle="modal" data-bs-target="#modalPagamento-{{ aluno['id'] }}">
+                Pagamento
+              </button>
+
+              <button type="button" class="btn btn-danger btn-excluir ms-1" data-aluno-id="{{ aluno['id'] }}">
+                Excluir
+              </button>
+        
+            
+            </td>
+          </tr>
+          <!-- Modal -->
+          <div class="modal fade" id="modalDetalhes-{{ aluno['id'] }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDetalhesLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modalDetalhesLabel">Detalhes do Aluno</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title" id="modalNome">{{ aluno['nome'] }}</h5>
+                      <p class="card-text" id="modalAno">Ano: {{ aluno['ano'] }}</p>
+                      <p class="card-text" id="modalTurno">Turno: {{ aluno['turno'] }}</p>
+                      <p class="card-text" id="modalResponsavel">Responsável: {{ aluno['responsavel'] }}</p>
+                      <p class="card-text" id="modalContato">Contato: {{ aluno['contato'] }}</p>
+                      <div class="d-flex">
+                        <h5 class="card-title">Crédito: </h5>
+                        <h5 class="card-title ms-1 verificar" id="modalCredito"> {{ aluno['credito'] }}</h5>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                  <a class="btn btn-primary" href="{{ url_for('editar_aluno', aluno_id=aluno['id']) }}">Editar</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Modal de Pagamento -->
+          <div class="modal fade" id="modalPagamento-{{ aluno['id'] }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalPagamentoLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalPagamentoLabel">Realizar Pagamento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="formPagamento" data-aluno-id="{{ aluno['id'] }}">
+                            <div class="mb-3">
+                                <label for="valorPagamento" class="form-label">Valor do Pagamento</label>
+                                <input type="text" class="form-control dinheiro" id="valorPagamento-{{ aluno['id'] }}" name="valorPagamento" placeholder="Digite o valor do pagamento" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-success btn-confirmar-pagamento" data-aluno-id="{{ aluno['id'] }}">Confirmar Pagamento</button>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+ 
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+  <script>
+    $('.btn-confirmar-pagamento').on('click', function () {
+        const alunoId = $(this).attr('data-aluno-id');
+        const valorPagamento = $('#valorPagamento-' + alunoId).val();
+    
+        // Validar se o valor é numérico
+        if (!isNumeric(valorPagamento)) {
+            alert('Digite um valor numérico válido.');
+            return;
+        }
+    
+        // Enviar a solicitação de pagamento ao servidor
+        $.ajax({
+            url: '/realizar_pagamento',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ alunoId: alunoId, valorPagamento: valorPagamento }),
+            success: function (response) {
+                if (response.success) {
+                    // Atualizar o valor do crédito na tabela
+                    const novoCredito = parseFloat(response.novoCredito.replace(',', '.'));
+    
+                    // Verificar se novoCredito é um número válido antes de atualizar
+                    if (!isNaN(novoCredito)) {
+                        $('.aluno-credito[data-aluno-id="' + alunoId + '"]').text(novoCredito.toFixed(2).replace('.', ','));
+                    } else {
+                        alert('O valor do crédito não é válido.');
+                    }
+    
+                    // Fechar o modal de pagamento
+                    $('#modalPagamento-' + alunoId).modal('hide');
+                    location.reload(true);
+                } else {
+                    alert('Erro ao realizar o pagamento. Tente novamente.');
+                }
+            },
+            error: function () {
+                alert('Erro ao realizar o pagamento. Tente novamente.');
+            }
+        });
+    });
+    
+    // Função personalizada para verificar se o valor é numérico
+    function isNumeric(value) {
+        return /^-?\d*[.,]?\d+$/.test(value);
+    }
+  </script>
+
+<!-- Adicione este trecho de script no final do corpo do seu HTML -->
+<script>
+  $(document).ready(function () {
+      // Evento de clique para o botão Excluir
+      $('.btn-excluir').on('click', function () {
+          const alunoId = $(this).attr('data-aluno-id');
+
+          // Confirmação antes de excluir
+          var confirmacao = window.confirm('Tem certeza que deseja excluir este aluno?');
+
+          if (confirmacao) {
+              // Envia uma solicitação para o endpoint de exclusão
+              $.ajax({
+                  url: '/excluir_aluno/' + alunoId,
+                  method: 'GET',  // ou 'POST' dependendo da sua implementação
+                  success: function (response) {
+                      if (response.success) {
+                          // Atualize a tabela ou faça outras ações necessárias após a exclusão
+                          location.reload(true);
+                      } else {
+                          alert('Erro ao excluir aluno. Tente novamente.');
+                      }
+                  },
+                  error: function () {
+                      alert('Erro ao excluir aluno. Tente novamente.');
+                  }
+              });
+          }
+      });
+  });
+</script>
+
+
+
+
+  <script>
+    $(document).ready(function () {
+        // Inicialize a máscara para campos de dinheiro
+        $('.dinheiro').mask('000.000.000,00', { reverse: true });
+    });
+  </script>
+  <script>
+    $(document).ready(function () {
+        // Adiciona a classe text-danger a elementos com a classe verificar se o valor for negativo
+        $('.verificar').each(function () {
+            var valor = parseFloat($(this).text().replace(',', '.'));
+  
+            if (!isNaN(valor) && valor < 0) {
+                $(this).addClass('text-danger');
+            }
+        });
+    });
+  </script>
+
+
+</body>
+</html>
