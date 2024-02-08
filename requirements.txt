@@ -30,7 +30,6 @@ kiwisolver==1.4.5
 launchpadlib==1.10.13
 lazr.restfulclient==0.14.2
 lazr.uri==1.0.3
-libsystemd
 libsystemd-journal
 lockfile==0.12.2
 louis
