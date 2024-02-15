@@ -32,90 +32,55 @@
       </div>
     </div>
   </nav>
-
-<!-- ... (código anterior) ... -->
-
-<div class="container">
-  <h1 class="mt-4 mb-4 mx-auto d-flex justify-content-center">cantina</h1>
-
-  
-
-  <!-- Guia para os turnos -->
-  <ul class="nav nav-pills pb-5" id="turnos-tabs" role="tablist">
-      {% for turno in turnos|reverse %}
-      <li class="nav-item border rounded" role="presentation">
-          <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ turno }}-tab" data-bs-toggle="tab" data-bs-target="#{{ turno }}" type="button" role="tab" aria-controls="{{ turno }}" aria-selected="true">{{ turno }}</button>
-      </li>
-      {% endfor %}
-  </ul>
-
-  <!-- Conteúdo das guias dos turnos -->
-  <div class="tab-content pb-5" id="turnos-content">
-    {% for turno, alunos_por_ano in alunos_por_turno_e_ano.items() %}
-    <div class="tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ turno }}" role="tabpanel" aria-labelledby="{{ turno }}-tab">
-        <!-- Guia para os anos dentro do turno -->
-        <nav>
-            <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                {% for ano, alunos in alunos_por_ano.items() %}
-                <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ turno }}-{{ ano }}-tab" data-bs-toggle="tab" data-bs-target="#{{ turno }}-{{ ano }}" type="button" role="tab" aria-controls="{{ turno }}-{{ ano }}" aria-selected="true">{{ ano }}º Ano</button>
-                {% endfor %}
-            </div>
-        </nav>
-
-        <!-- Conteúdo das guias dos anos -->
-        <div class="tab-content" id="nav-tabContent">
-            {% for ano, alunos in alunos_por_ano.items() %}
-            <div class="tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ turno }}-{{ ano }}" role="tabpanel" aria-labelledby="{{ turno }}-{{ ano }}-tab">
-                <!-- Conteúdo da tabela para este ano -->
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col">2ª feira</th>
-                            <th scope="col">3ª feira</th>
-                            <th scope="col">4ª feira</th>
-                            <th scope="col">5ª feira</th>
-                            <th scope="col">6ª feira</th>
-                            <th scope="col">Consumo Total da Semana</th>
-                            <th scope="col">Crédito</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for aluno in alunos %}
-                        <tr>
-                          <th scope="row">{{ aluno['id'] }}</th>
-                          <td>{{ aluno['nome'] }}</td>
-                          <td contenteditable="true" class="editar-consumo dinheiro" data-dia="segunda" data-aluno="{{ aluno['id'] }}">0,00</td>
-                          <td contenteditable="true" class="editar-consumo dinheiro" data-dia="terca" data-aluno="{{ aluno['id'] }}">0,00</td>
-                          <td contenteditable="true" class="editar-consumo dinheiro" data-dia="quarta" data-aluno="{{ aluno['id'] }}">0,00</td>
-                          <td contenteditable="true" class="editar-consumo dinheiro" data-dia="quinta" data-aluno="{{ aluno['id'] }}">0,00</td>
-                          <td contenteditable="true" class="editar-consumo dinheiro" data-dia="sexta" data-aluno="{{ aluno['id'] }}">0,00</td>
-                          <td class="consumo-total">0,00</td>
-                          <td class="credito-atual verificar">{{ aluno['credito'] }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endfor %}
+  <div class="container mb-4">
+    
+    <h1 class="mt-4 mb-4">cantina</h1>
+    <nav>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        {% for ano, alunos in alunos_por_ano.items() %}
+          <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ ano }}" data-bs-toggle="tab" data-bs-target="#nav-{{ ano }}" type="button" role="tab" aria-controls="nav-{{ ano }}" aria-selected="true">{{ ano }}º Ano</button>
+        {% endfor %}
+      </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+      {% for ano, alunos in alunos_por_ano.items() %}
+        <div class="tab-pane fade{% if loop.first %} show active{% endif %}" id="nav-{{ ano }}" role="tabpanel" aria-labelledby="{{ ano }}">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Nome</th>
+                <th scope="col">2ª feira</th>
+                <th scope="col">3ª feira</th>
+                <th scope="col">4ª feira</th>
+                <th scope="col">5ª feira</th>
+                <th scope="col">6ª feira</th>
+                <th scope="col">Consumo Total da Semana</th>
+                <th scope="col">Crédito</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for aluno in alunos %}
+                <tr>
+                  <th scope="row">{{ aluno['id'] }}</th>
+                  <td>{{ aluno['nome'] }}</td>
+                  <td contenteditable="true" class="editar-consumo dinheiro" data-dia="segunda" data-aluno="{{ aluno['id'] }}">0,00</td>
+                  <td contenteditable="true" class="editar-consumo dinheiro" data-dia="terca" data-aluno="{{ aluno['id'] }}">0,00</td>
+                  <td contenteditable="true" class="editar-consumo dinheiro" data-dia="quarta" data-aluno="{{ aluno['id'] }}">0,00</td>
+                  <td contenteditable="true" class="editar-consumo dinheiro" data-dia="quinta" data-aluno="{{ aluno['id'] }}">0,00</td>
+                  <td contenteditable="true" class="editar-consumo dinheiro" data-dia="sexta" data-aluno="{{ aluno['id'] }}">0,00</td>
+                  <td class="consumo-total">0,00</td>
+                  <td class="credito-atual verificar">{{ aluno['credito'] }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+      {% endfor %}
     </div>
-    {% endfor %}
+    
+    <button class="btn btn-primary" id="subtrair-credito">Subtrair Crédito</button>
   </div>
-
-
-
-  
-
-  <button class="btn btn-primary" id="subtrair-credito">Subtrair Crédito</button>
-</div>
-
-
-<!-- ... (código posterior) ... -->
-
-
-
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>

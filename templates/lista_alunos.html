@@ -35,99 +35,132 @@
     </div>
   </nav>
   <div class="container mb-4">
-    <h1 class="mt-4 mb-4">Lista de Alunos</h1>
-    <table class="table table-bordered table-striped">
-      <thead>
-        <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Nome</th>
-          <th scope="col">Ano</th>
-          <th scope="col">Crédito</th>
-          <th class="d-flex justify-content-center" scope="col">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for aluno in alunos %}
-          <tr>
-            <th scope="row">{{ aluno['id'] }}</th>
-            <td class="aluno-nome">{{ aluno['nome'] }}</td>
-            <td>{{ aluno['ano'] }}</td>
-            <td class="verificar">{{ aluno['credito'] }}</td>
-            <td class="d-flex justify-content-center">
-              <button type="button" class="btn btn-primary btn-ver-detalhes" data-bs-toggle="modal" data-bs-target="#modalDetalhes-{{ aluno['id'] }}">
-                Detalhes
-              </button>
-              <!-- Botão de Pagamento -->
-              <button type="button" class="btn btn-success btn-pagamento ms-1" data-bs-toggle="modal" data-bs-target="#modalPagamento-{{ aluno['id'] }}">
-                Pagamento
-              </button>
+    <h1 class="mt-4 mb-4 mx-auto d-flex justify-content-center">Lista de Alunos</h1>
 
-              <button type="button" class="btn btn-danger btn-excluir ms-1" data-aluno-id="{{ aluno['id'] }}">
-                Excluir
-              </button>
-        
-            
-            </td>
-          </tr>
-          <!-- Modal -->
-          <div class="modal fade" id="modalDetalhes-{{ aluno['id'] }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDetalhesLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="modalDetalhesLabel">Detalhes do Aluno</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <div class="card">
-                    <div class="card-body">
-                      <h5 class="card-title" id="modalNome">{{ aluno['nome'] }}</h5>
-                      <p class="card-text" id="modalAno">Ano: {{ aluno['ano'] }}</p>
-                      <p class="card-text" id="modalTurno">Turno: {{ aluno['turno'] }}</p>
-                      <p class="card-text" id="modalResponsavel">Responsável: {{ aluno['responsavel'] }}</p>
-                      <p class="card-text" id="modalContato">Contato: {{ aluno['contato'] }}</p>
-                      <div class="d-flex">
-                        <h5 class="card-title">Crédito: </h5>
-                        <h5 class="card-title ms-1 verificar" id="modalCredito"> {{ aluno['credito'] }}</h5>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                  <a class="btn btn-primary" href="{{ url_for('editar_aluno', aluno_id=aluno['id']) }}">Editar</a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Modal de Pagamento -->
-          <div class="modal fade" id="modalPagamento-{{ aluno['id'] }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalPagamentoLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalPagamentoLabel">Realizar Pagamento</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form class="formPagamento" data-aluno-id="{{ aluno['id'] }}">
-                            <div class="mb-3">
-                                <label for="valorPagamento" class="form-label">Valor do Pagamento</label>
-                                <input type="text" class="form-control dinheiro" id="valorPagamento-{{ aluno['id'] }}" name="valorPagamento" placeholder="Digite o valor do pagamento" required>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                        <button type="button" class="btn btn-success btn-confirmar-pagamento" data-aluno-id="{{ aluno['id'] }}">Confirmar Pagamento</button>
-                    </div>
-                </div>
-            </div>
-          </div>
-
-
+    <!-- Guia para os turnos -->
+    <ul class="nav nav-pills pb-5" id="turnos-tabs" role="tablist">
+        {% for turno in turnos|reverse %}
+            <li class="nav-item border rounded" role="presentation">
+                <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ turno }}-tab" data-bs-toggle="tab" data-bs-target="#{{ turno }}" type="button" role="tab" aria-controls="{{ turno }}" aria-selected="true">{{ turno }}</button>
+            </li>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    </ul>
+
+    <!-- Conteúdo das guias dos turnos -->
+    <div class="tab-content pb-5" id="turnos-content">
+        {% for turno, alunos_por_ano in alunos_por_turno_e_ano.items() %}
+            <div class="tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ turno }}" role="tabpanel" aria-labelledby="{{ turno }}-tab">
+                <!-- Guia para os anos dentro do turno -->
+                <nav>
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        {% for ano, alunos in alunos_por_ano.items() %}
+                            <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ turno }}-{{ ano }}-tab" data-bs-toggle="tab" data-bs-target="#{{ turno }}-{{ ano }}" type="button" role="tab" aria-controls="{{ turno }}-{{ ano }}" aria-selected="true">{{ ano }}º Ano</button>
+                        {% endfor %}
+                    </div>
+                </nav>
+
+                <!-- Conteúdo das guias dos anos -->
+                <div class="tab-content" id="nav-tabContent">
+                    {% for ano, alunos in alunos_por_ano.items() %}
+                        <div class="tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ turno }}-{{ ano }}" role="tabpanel" aria-labelledby="{{ turno }}-{{ ano }}-tab">
+                            <!-- Conteúdo da tabela para este ano -->
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Nome</th>
+                                        <th scope="col">Crédito</th>
+                                        <th class="d-flex justify-content-center" scope="col">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for aluno in alunos %}
+                                        <tr>
+                                            <th scope="row">{{ aluno['id'] }}</th>
+                                            <td class="aluno-nome">{{ aluno['nome'] }}</td>
+                                            <td class="verificar">{{ aluno['credito'] }}</td>
+                                            <td class="d-flex justify-content-center">
+                                                <button type="button" class="btn btn-primary btn-ver-detalhes" data-bs-toggle="modal" data-bs-target="#modalDetalhes-{{ aluno['id'] }}">
+                                                    Detalhes
+                                                </button>
+                                                <!-- Botão de Pagamento -->
+                                                <button type="button" class="btn btn-success btn-pagamento ms-1" data-bs-toggle="modal" data-bs-target="#modalPagamento-{{ aluno['id'] }}">
+                                                    Pagamento
+                                                </button>
+                                                <button type="button" class="btn btn-danger btn-excluir ms-1" data-aluno-id="{{ aluno['id'] }}">
+                                                    Excluir
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <!-- Modal detalhes -->
+                                        <div class="modal fade" id="modalDetalhes-{{ aluno['id'] }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDetalhesLabel" aria-hidden="true">
+                                          <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                              <div class="modal-header">
+                                                <h5 class="modal-title" id="modalDetalhesLabel">Detalhes do Aluno</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                              </div>
+                                              <div class="modal-body">
+                                                <div class="card">
+                                                  <div class="card-body">
+                                                    <h5 class="card-title" id="modalNome">{{ aluno['nome'] }}</h5>
+                                                    <p class="card-text" id="modalAno">Ano: {{ aluno['ano'] }}</p>
+                                                    <p class="card-text" id="modalTurno">Turno: {{ aluno['turno'] }}</p>
+                                                    <p class="card-text" id="modalResponsavel">Responsável: {{ aluno['responsavel'] }}</p>
+                                                    <p class="card-text" id="modalContato">Contato: {{ aluno['contato'] }}</p>
+                                                    <div class="d-flex">
+                                                      <h5 class="card-title">Crédito: </h5>
+                                                      <h5 class="card-title ms-1 verificar" id="modalCredito"> {{ aluno['credito'] }}</h5>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              <div class="modal-footer">
+                                                <!-- add historico de consumo por semanas -->
+                                                <a class="btn btn-info" href="{{ url_for('historico', aluno_id=aluno['id']) }}">Histórico</a>
+
+                                                <a class="btn btn-primary" href="{{ url_for('editar_aluno', aluno_id=aluno['id']) }}">Editar</a>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!-- Modal de Pagamento -->
+                                        <div class="modal fade" id="modalPagamento-{{ aluno['id'] }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalPagamentoLabel" aria-hidden="true">
+                                          <div class="modal-dialog modal-dialog-centered">
+                                              <div class="modal-content">
+                                                  <div class="modal-header">
+                                                      <h5 class="modal-title" id="modalPagamentoLabel">Realizar Pagamento</h5>
+                                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                  </div>
+                                                  <div class="modal-body">
+                                                      <form class="formPagamento" data-aluno-id="{{ aluno['id'] }}">
+                                                          <div class="mb-3">
+                                                              <label for="valorPagamento" class="form-label">Valor do Pagamento</label>
+                                                              <input type="text" class="form-control dinheiro" id="valorPagamento-{{ aluno['id'] }}" name="valorPagamento" placeholder="Digite o valor do pagamento" required>
+                                                          </div>
+                                                      </form>
+                                                  </div>
+                                                  <div class="modal-footer">
+                                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                                      <button type="button" class="btn btn-success btn-confirmar-pagamento" data-aluno-id="{{ aluno['id'] }}">Confirmar Pagamento</button>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                        </div>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+
  
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
@@ -180,37 +213,37 @@
     }
   </script>
 
-<!-- Adicione este trecho de script no final do corpo do seu HTML -->
-<script>
-  $(document).ready(function () {
-      // Evento de clique para o botão Excluir
-      $('.btn-excluir').on('click', function () {
-          const alunoId = $(this).attr('data-aluno-id');
+  <!-- Adicione este trecho de script no final do corpo do seu HTML -->
+  <script>
+    $(document).ready(function () {
+        // Evento de clique para o botão Excluir
+        $('.btn-excluir').on('click', function () {
+            const alunoId = $(this).attr('data-aluno-id');
 
-          // Confirmação antes de excluir
-          var confirmacao = window.confirm('Tem certeza que deseja excluir este aluno?');
+            // Confirmação antes de excluir
+            var confirmacao = window.confirm('Tem certeza que deseja excluir este aluno?');
 
-          if (confirmacao) {
-              // Envia uma solicitação para o endpoint de exclusão
-              $.ajax({
-                  url: '/excluir_aluno/' + alunoId,
-                  method: 'GET',  // ou 'POST' dependendo da sua implementação
-                  success: function (response) {
-                      if (response.success) {
-                          // Atualize a tabela ou faça outras ações necessárias após a exclusão
-                          location.reload(true);
-                      } else {
-                          alert('Erro ao excluir aluno. Tente novamente.');
-                      }
-                  },
-                  error: function () {
-                      alert('Erro ao excluir aluno. Tente novamente.');
-                  }
-              });
-          }
-      });
-  });
-</script>
+            if (confirmacao) {
+                // Envia uma solicitação para o endpoint de exclusão
+                $.ajax({
+                    url: '/excluir_aluno/' + alunoId,
+                    method: 'GET',  // ou 'POST' dependendo da sua implementação
+                    success: function (response) {
+                        if (response.success) {
+                            // Atualize a tabela ou faça outras ações necessárias após a exclusão
+                            location.reload(true);
+                        } else {
+                            alert('Erro ao excluir aluno. Tente novamente.');
+                        }
+                    },
+                    error: function () {
+                        alert('Erro ao excluir aluno. Tente novamente.');
+                    }
+                });
+            }
+        });
+    });
+  </script>
 
 
 

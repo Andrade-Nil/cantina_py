@@ -3,7 +3,7 @@ import sqlite3
 import json
 import sys
 from datetime import datetime
-import pytz
+
 sys.stdout.flush()
 
 app = Flask(__name__)
@@ -35,28 +35,18 @@ def pagina_principal():
     with sqlite3.connect(DATABASE) as con:
         con.row_factory = sqlite3.Row  # Para acessar as colunas pelo nome
         cur = con.cursor()
-        cur.execute('SELECT id, nome, ano, turno, credito FROM alunos ORDER BY ano, turno, nome')
+        cur.execute('SELECT id, nome, ano, credito FROM alunos ORDER BY ano, nome')
         alunos = cur.fetchall()
 
-    # Organizar os alunos por ano e turno
-    alunos_por_turno_e_ano = {}
+    # Organizar os alunos por ano
+    alunos_por_ano = {}
     for aluno in alunos:
         ano = aluno['ano']
-        turno = aluno['turno']
+        if ano not in alunos_por_ano:
+            alunos_por_ano[ano] = []
+        alunos_por_ano[ano].append(aluno)
 
-        if turno not in alunos_por_turno_e_ano:
-            alunos_por_turno_e_ano[turno] = {}
-
-        if ano not in alunos_por_turno_e_ano[turno]:
-            alunos_por_turno_e_ano[turno][ano] = []
-
-        alunos_por_turno_e_ano[turno][ano].append(aluno)
-
-    # Passar informações dos turnos para o template
-    turnos = set(aluno['turno'] for aluno in alunos)
-    return render_template('principal.html', alunos_por_turno_e_ano=alunos_por_turno_e_ano, turnos=turnos)
-
-
+    return render_template('principal.html', alunos_por_ano=alunos_por_ano)
 
 
 # Configurações do SQLite
@@ -127,32 +117,14 @@ def cadastrar():
 # Rota para exibir a lista de alunos
 @app.route('/lista_alunos')
 def lista_alunos():
-    # Consultar dados dos alunos no banco de dados
+    # Consultar dados dos alunos no banco de dados ordenados pelo nome
     with sqlite3.connect(DATABASE) as con:
         con.row_factory = sqlite3.Row  # Para acessar as colunas pelo nome
         cur = con.cursor()
-        cur.execute('SELECT id, nome, turno, ano, responsavel, contato, credito FROM alunos ORDER BY ano, turno, nome')
+        cur.execute('SELECT id, nome, turno, ano, responsavel, contato, credito FROM alunos ORDER BY nome')
         alunos = cur.fetchall()
 
-    # Organizar os alunos por ano e turno
-    alunos_por_turno_e_ano = {}
-    for aluno in alunos:
-        ano = aluno['ano']
-        turno = aluno['turno']
-
-        if turno not in alunos_por_turno_e_ano:
-            alunos_por_turno_e_ano[turno] = {}
-
-        if ano not in alunos_por_turno_e_ano[turno]:
-            alunos_por_turno_e_ano[turno][ano] = []
-
-        alunos_por_turno_e_ano[turno][ano].append(aluno)
-
-    # Passar informações dos turnos para o template
-    turnos = set(aluno['turno'] for aluno in alunos)
-
-    return render_template('lista_alunos.html', alunos_por_turno_e_ano=alunos_por_turno_e_ano, turnos=turnos)
-
+    return render_template('lista_alunos.html', alunos=alunos)
 
 
 # Rota para editar alunos
@@ -225,7 +197,7 @@ def subtrair_credito():
         # Percorre os dados enviados pelo frontend
         for aluno_id, consumo_total in data.items():
             aluno_id = int(aluno_id)
-            consumo_total = float(str(consumo_total).replace(',', '.'))
+            consumo_total = float(str(consumo_total).replace(',', '.'))  # Converte para float e substitui a vírgula por ponto
 
             # Consulta o crédito atual do aluno no banco de dados
             with sqlite3.connect(DATABASE) as con:
@@ -233,14 +205,10 @@ def subtrair_credito():
                 cur.execute('SELECT credito FROM alunos WHERE id = ?', (aluno_id,))
                 result = cur.fetchone()
                 credito_atual = float(str(result[0]).replace(',', '.')) if result else 0.0
+                print(f'Crédito atual do aluno {aluno_id}: {credito_atual}')
 
                 # Adiciona dados ao histórico antes da subtração
-                historico_data.append({
-                    'aluno_id': aluno_id,
-                    'data': datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%d-%m-%Y %H:%M:%S'),
-                    'valor': consumo_total,
-                    'tipo_transacao': 'consumo'
-                })
+                historico_data.append({'aluno_id': aluno_id, 'data': datetime.now().strftime('%d-%m-%Y %H:%M:%S'), 'valor': consumo_total, 'tipo_transacao': 'consumo'})
 
 
 
@@ -294,7 +262,7 @@ def realizar_pagamento():
         with sqlite3.connect(DATABASE) as con:
             cur = con.cursor()
             cur.execute('INSERT INTO historico_consumo (aluno_id, data, valor, tipo_transacao) VALUES (?, ?, ?, ?)',
-                        (aluno_id, datetime.now(pytz.timezone('America/Campo_Grande')).strftime('%d-%m-%Y %H:%M:%S'), valor_pagamento, 'pagamento'))
+                        (aluno_id, datetime.now().strftime('%d-%m-%Y %H:%M:%S'), valor_pagamento, 'pagamento'))
             con.commit()
 
         # Atualizar crédito no banco de dados
