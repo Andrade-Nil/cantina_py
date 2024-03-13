@@ -218,7 +218,7 @@ def subtrair_credito():
         # Carrega os dados JSON recebidos
         data = json.loads(request.data)
         print(f'Dados recebidos para atualização de crédito: {data}')
-        
+
         # Lista para armazenar dados do histórico antes da subtração
         historico_data = []
 
@@ -325,5 +325,8 @@ def excluir_aluno(aluno_id):
 
 
 
+# if __name__ == '__main__':
+#     app.run(debug=True)
+
 if __name__ == '__main__':
-    app.run(debug=True)
+  app.run(host='0.0.0.0', port=80)

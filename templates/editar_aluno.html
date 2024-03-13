@@ -46,15 +46,29 @@
           <label for="inputAno" class="form-label">Ano</label>
           <select id="inputAno" class="form-select" name="ano"> <!-- Adicione o atributo name aqui -->
               <option value="{{ aluno['ano'] }}" selected>{{ aluno['ano'] }}</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-              <option>6</option>
-              <option>7</option>
-              <option>8</option>
-              <option>9</option>
+              <option selected>Bercario-A</option>
+            <option>Bercario-B</option>
+            <option>Maternal-A</option>
+            <option>Maternal-B</option>
+            <option>Nivel-I-A</option>
+            <option>Nivel-I-B</option>
+            <option>Nivel-II A</option>
+            <option>Nivel-II-B</option>
+            <option>Nivel-III-A</option>
+            <option>Nivel-III-B</option>
+            <option>1-ano-A</option>
+            <option>1-ano-B</option>
+            <option>2-ano-A</option>
+            <option>2-ano-B</option>
+            <option>3-ano-A</option>
+            <option>3-ano-B</option>
+            <option>4-ano-A</option>
+            <option>4-ano-B</option>
+            <option>5-ano</option>
+            <option>6-ano</option>
+            <option>7-ano</option>
+            <option>8-ano</option>
+            <option>9-ano</option>
           </select>
         </div>
         <div class="col-md-2">
@@ -74,11 +88,11 @@
             <input type="tel" class="form-control" id="inputContato" name="contato" placeholder="Digite o numero para contato" value="{{ aluno['contato'] }}" required>
         </div>
         <div class="col-md-4">
-          <label for="inputCredito" class="form-label">Credito do Aluno</label>
+          <label for="inputCredito" class="form-label">Saldo do Aluno</label>
           <input type="text" class="form-control" id="inputCredito" name="credito" placeholder="0,00" value="{{ aluno['credito'] }}">
         </div>
         <div class="col-12">
-          <button type="submit" class="btn btn-primary">Sign in</button>
+          <button type="submit" class="btn btn-primary">Atualizar</button>
         </div>
       </form>
   </div>
