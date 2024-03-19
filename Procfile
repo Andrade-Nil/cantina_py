@@ -1,1 +1,1 @@
-web: python principal.py
+web: python3 app.py
